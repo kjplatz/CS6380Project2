@@ -38,10 +38,14 @@ int parse_config( std::string cfg_file,
 //
 // Function to run a node
 // Parameters:
-//    node_id     : The node ID to represent
-//    master_fd   : Socket file descriptor to talk to/from master thread
-//    neighbor_fds: The socket file descriptors of my neighbors
-void run_node( int me, Neighbor master,  std::vector<Neighbor> neighbors );
+//    myNode      : The node ID to represent
+//    mySock      : My socket to send/receive connections   
+//    master      : Address of master thread
+//    neighbor    : The addresses of my neighbors
+void run_node( int myNode, 
+               int mySock,
+               const struct sockaddr_in& master,  
+               std::vector<Neighbor> neighbors );
 
 extern bool verbose;
 

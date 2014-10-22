@@ -31,7 +31,7 @@ Message::Message( Message&& m ) : msgType( m.msgType ), id(m.id) {
 
 // Read a message from file descriptor <fd>
 Message::Message( int fd ) {
-	char buf[8192];
+    char buf[8192];
     memset( buf, sizeof(buf), 0 );
 
     if ( (rcvd = recvfrom( fd, buf, 1023, 0, nullptr, nullptr )) < 0 ) {

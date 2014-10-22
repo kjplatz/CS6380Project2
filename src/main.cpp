@@ -89,25 +89,24 @@ int main( int argc, char** argv ) {
         cout << "Node " << i << " has ID: " << nodeIds[i] << endl;
         cout << "    -- Neighbors: ";
         for( unsigned j=0; j<neighborWts[i].size(); j++ ) {
-            if ( neighborWts[i][j] ) cout << j << "(" << neighborWts[i][j] << ") ";
+            if ( neighborWts[i][j] ) {
+                cout << j << "(" << neighborWts[i][j] << ") ";
+            }
         }
         cout << endl;
     }
     // file descriptors for threads to talk on...
     vector<int> nodeFds;
-    nodeFds.reserve( numNodes );
     // Addresses of all the neighbors
     vector<struct sockaddr_in> nodeAddrs;
-    nodeAddrs.reserve( numNodes );
 
     vector<vector<Neighbor>> neighbors( numNodes );
 
     // The threads vector
     vector<thread*> threads;
-    threads.reserve( numNodes+1 );
 
-    // We discovered that with a sufficiently dense graph of ~80 nodes,
-    // we would run out of file descriptors.
+    // We discovered in project 1 that with a sufficiently dense graph 
+    // of ~80 nodes, we would run out of file descriptors.
     //
     // As a result, we will just go ahead and attempt to bump up our
     // resources to the hard limit at the beginning of the computation.
@@ -122,7 +121,7 @@ int main( int argc, char** argv ) {
         throw runtime_error( err );
     }
 
-    // We will need more than the default # of threads.  Really...
+    // We will need more than the default # of threads.  REALLY
     // Boost to the max.
     getrlimit( RLIMIT_NPROC, &lim );
     lim.rlim_cur = lim.rlim_max;
@@ -135,12 +134,14 @@ int main( int argc, char** argv ) {
     cerr << " (successful)" << endl;
 
     // Create listening sockets for every thread.
-    // We're using SCTP and a one-to-many methodology here so we can get away with two file descriptors
-    // per node, instead of two file descriptors per EDGE.  We should be able to approach 2,000 nodes this way.
+    // We're using SCTP and a one-to-many methodology here so we can get away 
+    // with two file descriptors per node, instead of two file descriptors per 
+    // EDGE.  We should be able to approach 2,000 nodes this way.
 
-    // We're going to use random ports... if we fail to bind to one, we just pick the next in the random sequence.
+    // We're going to use random ports... if we fail to bind to one, we 
+    // just pick the next in the random sequence.
     long long seed = chrono::high_resolution_clock::now().time_since_epoch().count();
-    default_random_engine generator;
+    mt19937 generator;
     generator.seed( seed );
     uniform_int_distribution<unsigned short> distribution( 10240, 65534);
     auto rand = bind( distribution, generator );
@@ -149,9 +150,9 @@ int main( int argc, char** argv ) {
     int sockfd;
 
     if ( masterSock < 0 ) {
-    	string err{"Unable to create socket: "};
-    	err += strerror( errno );
-    	throw runtime_error{ err };
+        string err {"Unable to create socket: "};
+        err += strerror( errno );
+        throw runtime_error { err };
     }
 
     // Create a socket for the 'master' thread and bind it to a port
@@ -159,9 +160,9 @@ int main( int argc, char** argv ) {
     struct sockaddr_in addr, masterAddr;
 
     if ( listen( masterSock, 1024 ) < 0 ) {
-    	string err{"Cannot listen: "};
-    	err += string{strerror(errno)};
-    	throw runtime_error{err};
+        string err {"Cannot listen: "};
+        err += string {strerror(errno)};
+        throw runtime_error {err};
     }
 
     // We don't care what port we actually got, BUT we do need to know
@@ -171,54 +172,54 @@ int main( int argc, char** argv ) {
     cout << "Master thread listening on port " << ntohs( masterAddr.sin_port ) << endl;
 
     for( int i=1; i<=numNodes; i++ ) {
-    	usleep( 250000 );
-    	sockfd = socket( AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP );   // Open a new socket
-    	if ( sockfd < 0 ) {
-        	string err{"Unable to create socket: "};
-        	err += strerror( errno );
-        	throw runtime_error{ err };
+        usleep( 250000 );
+        sockfd = socket( AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP );   // Open a new socket
+        if ( sockfd < 0 ) {
+            string err {"Unable to create socket: "};
+            err += strerror( errno );
+            throw runtime_error { err };
         }
-    	if ( listen( sockfd, 1024 ) < 0 ) {                         // Attempt to listen
-    		string err{"Cannot listen: "};
-    		err += string{strerror(errno)};
-    		throw runtime_error{err};
-    	}
-    	getsockname( sockfd, (struct sockaddr*)&addr, &addrlen );   // Record the address
-    	cout << "Thread " << i <<
-    			" is listening on port " <<
-				ntohs(addr.sin_port) << endl;
+        if ( listen( sockfd, 1024 ) < 0 ) {                         // Attempt to listen
+            string err {"Cannot listen: "};
+            err += string {strerror(errno)};
+            throw runtime_error {err};
+        }
+        getsockname( sockfd, (struct sockaddr*)&addr, &addrlen );   // Record the address
+        cout << "Thread " << i <<
+             " is listening on port " <<
+             ntohs(addr.sin_port) << endl;
 
-    	// Again, store the file descriptor & address
-    	nodeFds.push_back( sockfd );
-    	nodeAddrs.push_back( addr );
+        // Again, store the file descriptor & address
+        nodeFds.push_back( sockfd );
+        nodeAddrs.push_back( addr );
     }
 
     // Now create the neighbor list...
     cout << "Constructing neighbor lists..." << flush;
     for( int i=0; i<numNodes; i++ ) {
-    	for( int j=i+1; j<numNodes; j++ ) {
-    		// Assume that all paths are bidirectional and equally weighted...
-    		// pick the max weight of the direction in event of conflict.
-    		int weight = max( neighbors[i][j], neighbors[j][i] );
-    		if ( weight == 0 ) continue;
+        for( int j=i+1; j<numNodes; j++ ) {
+            // Assume that all paths are bidirectional and equally weighted...
+            // pick the max weight of the direction in event of conflict.
+            int weight = max( neighborWts[i][j], neighborWts[j][i] );
+            if ( weight == 0 ) continue;
 
 
-    		neighbors[i].push_back( Neighbor{ j, nodeAddrs[j], weight });
-    		neighbors[j].push_back( Neighbor{ i, nodeAddrs[i], weight });
-    	}
-    	cout << "." << flush;
+            neighbors[i].push_back( Neighbor { j, nodeAddrs[j], weight });
+            neighbors[j].push_back( Neighbor { i, nodeAddrs[i], weight });
+        }
+        cout << "." << flush;
     }
     cout << endl;
     usleep( 250000 );
 
     for( int i=0; i<numNodes; i++ ) {
-    	threads.push_back( new thread{ run_node, nodeFds[i], masterAddr, neighbors[i] } );
+        threads.push_back( new thread { run_node, nodeIds[i], nodeFds[i], masterAddr, neighbors[i] } );
     }
     usleep( 250000 );
 
-    Message begin{ Message::MSG_BEGIN };
+    Message begin { Message::MSG_BEGIN };
     for( auto dest : nodeAddrs ) {
-    	begin.send( masterSock, dest );
+        begin.send( masterSock, dest );
     }
 
     string str;
@@ -366,7 +367,7 @@ int main( int argc, char** argv ) {
     }
 
     cout << "All threads terminated... exiting" << endl;
-*/
+    */
 }
 
 

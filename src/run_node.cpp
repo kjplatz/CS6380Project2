@@ -56,7 +56,10 @@ using namespace std;
 //        If we are our own parent, we send LEADER to the master thread
 //        Otherwise, we send DONE to our parent
 //    If we aren't done with the protocol, we send a DONE to the master thread.
-void run_node( int node_id, struct sockaddr_in master, vector<Neighbor> neighbors ) {
+void run_node( int myNode, 
+               int mySock,
+               const struct sockaddr_in& master, 
+               vector<Neighbor> neighbors ) {
     int maxId = node_id;
     ofstream fout(string {"node"} + to_string(node_id) + string {".log"});
     fout << "Starting node " << node_id << endl;

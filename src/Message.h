@@ -24,17 +24,17 @@ public:
     enum MsgType {  MSG_NULL=0, MSG_TICK, MSG_DONE, MSG_EXPLORE,
                     MSG_REJECT, MSG_LEADER,
                     MSG_HELLO,         // Initiate contact with neighbor
-					MSG_ACK,           // Acknowledge neighbor's HELLO
-					MSG_BEGIN,         // Message from master->children to start algorithm
-					MSG_QUERY,         // What is your component ID?         (MWOE->MWOE)
-					MSG_COMPONENT_ID,  // Reply with my component ID & level (MWOE->MWOE)
-					MSG_NEW_COMPONENT, // Announce the ID, Leader, and Level of the new component
-					MSG_INITIATE_PHASE,// Leader sends to initiate a phase of the MST algorithm
-					                   // (leader->leaf)
-					MSG_BEST_EDGE,     // My best edge (leaf->leader)
-					MSG_ATTEMPT_EDGE,  // The edge to try (leader->leaf)
-					MSG_MERGE,         // Attempt to merge with other component (MWOE->MWOE)
-					MSG_ABSORBME       // Tell other component to absorb me     (MWOE->MWOE)
+                    MSG_ACK,           // Acknowledge neighbor's HELLO
+                    MSG_BEGIN,         // Message from master->children to start algorithm
+                    MSG_QUERY,         // What is your component ID?         (MWOE->MWOE)
+                    MSG_COMPONENT_ID,  // Reply with my component ID & level (MWOE->MWOE)
+                    MSG_NEW_COMPONENT, // Announce the ID, Leader, and Level of the new component
+                    MSG_INITIATE_PHASE,// Leader sends to initiate a phase of the MST algorithm
+                    // (leader->leaf)
+                    MSG_BEST_EDGE,     // My best edge (leaf->leader)
+                    MSG_ATTEMPT_EDGE,  // The edge to try (leader->leaf)
+                    MSG_MERGE,         // Attempt to merge with other component (MWOE->MWOE)
+                    MSG_ABSORBME       // Tell other component to absorb me     (MWOE->MWOE)
                  } msgType;
     int  id;
     // Read a message from a file descriptor
