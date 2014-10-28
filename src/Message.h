@@ -12,6 +12,10 @@
 #define MESSAGE_H_
 
 #include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/sctp.h>
 
 /*
  * class Message:
@@ -20,6 +24,8 @@
  */
 class Message {
     int rcvd;
+    struct sockaddr_in from;
+    sctp_assoc_t assoc;
 public:
     enum MsgType {  MSG_NULL=0, MSG_TICK, MSG_DONE, MSG_EXPLORE,
                     MSG_REJECT, MSG_LEADER,

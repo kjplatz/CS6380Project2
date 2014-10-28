@@ -8,8 +8,6 @@
 #ifndef NEIGHBOR_H_
 #define NEIGHBOR_H_
 
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #include "Edge.h"
 

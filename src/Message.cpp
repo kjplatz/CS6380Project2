@@ -8,16 +8,18 @@
  *      Brian Snedic
  */
 
+#include "CS6380Project2.h"
 #include "Message.h"
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 #include <netinet/sctp.h>
 #include <cerrno>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "CS6380Project2.h"
+
 
 using namespace std;
 
@@ -33,11 +35,22 @@ Message::Message( Message&& m ) : msgType( m.msgType ), id(m.id) {
 Message::Message( int fd ) {
     char buf[8192];
     memset( buf, sizeof(buf), 0 );
+    socklen_t fromlen = sizeof(from);
+    struct sctp_sndrcvinfo sinfo;
+    int flags;
 
+    rcvd = sctp_recvmsg( fd, buf, sizeof(buf),
+    		             (struct sockaddr*)&from, &fromlen,
+						 &sinfo, &flags );
+
+    assoc = sinfo.sinfo_assoc_id;
+
+#if 0
     if ( (rcvd = recvfrom( fd, buf, 1023, 0, nullptr, nullptr )) < 0 ) {
         throw runtime_error( string {"Unable to receive message: " } +
                              strerror( errno ) );
     }
+#endif
 
     istringstream is(buf);
     string type;
@@ -58,6 +71,11 @@ Message::Message( int fd ) {
 int Message::send(int fd) {
     string str = this->toString() + '\n';
     return ::send( fd, str.c_str(), str.length(), 0 );
+}
+
+// Send a message to a specific remote address
+int Message::send( int fd, const struct sockaddr_in& dest ) {
+
 }
 
 // Utility function to convert a message into a human-readable string

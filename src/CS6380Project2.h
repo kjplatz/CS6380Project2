@@ -20,6 +20,10 @@
 " ISO/IEC 14882:2011 standard (aka C++11)"
 #endif
 
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+
 #define TESTING
 
 // Parse the configuration file.

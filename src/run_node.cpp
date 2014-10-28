@@ -60,6 +60,7 @@ void run_node( int myNode,
                int mySock,
                const struct sockaddr_in& master, 
                vector<Neighbor> neighbors ) {
+#if 0
     int maxId = node_id;
     ofstream fout(string {"node"} + to_string(node_id) + string {".log"});
     fout << "Starting node " << node_id << endl;
@@ -253,4 +254,5 @@ void run_node( int myNode,
             leaderMsg.send( master_fd );
         }
     }
+#endif
 }

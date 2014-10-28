@@ -12,9 +12,8 @@
  * CS 6380 - Distributed Computing
  * Fall 2014
  *
- * Programming Assignment #1
- * This project implements the FloodMax leader election protocol
- * in a general network.
+ * Programming Assignment #2
+ * This project implements the AsyncGHS minimum spanning tree algorithm
  *
  * The program consists of three main portions:
  *     The parse_config() function reads a configuration file
@@ -32,7 +31,6 @@
  *               that LEADER message to all processes to indicate successful
  *               termination.
  *
- * We have tested this program on configurations of up to 80 nodes.
  */
 
 #include <algorithm>
