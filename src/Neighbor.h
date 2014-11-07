@@ -8,18 +8,20 @@
 #ifndef NEIGHBOR_H_
 #define NEIGHBOR_H_
 
-#include <sys/socket.h>
-#include <sys/types.h>
-
 #include "Edge.h"
 
 class Neighbor {
-	int id;
-	struct sockaddr_in addr;
-	int weight;
+	int                  id;
+	int                  vecpos;       // My position in the vector
+	float                weight;
+        enum EdgeType {
+            NBR_CANDIDATE,
+            NBR_TREE,
+            NBR_REJECT
+        }                    edgeType;
 public:
-	Neighbor( const int i, const struct sockaddr_in a, const int w ) :
-		id(i), addr(a), weight(w) {};
+	Neighbor( const int i, const int v, const int w ) :
+		id(i), vecpos(v), weight(w), edgeType(NBR_CANDIDATE) {};
 	Neighbor( const Neighbor& ) = default;
 	Neighbor( Neighbor&& ) = default;
 
@@ -30,8 +32,8 @@ public:
 	inline Edge getEdge(int me) {
 		return Edge{ me, id, weight };
 	}
-	inline struct sockaddr_in getAddr() { return addr; }
 	inline int getWeight() { return weight; }
+        inline enum EdgeType getEdgeType() { return edgeType; }
 };
 
 #endif /* NEIGHBOR_H_ */

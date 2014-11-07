@@ -9,9 +9,10 @@
 #define EDGE_H_
 
 class Edge {
-	int end1, end2, weight;
+	int end1, end2;
+        float weight;
 public:
-	Edge( int w, int e1, int e2 ) : weight(w) {
+	Edge( int e1, int e2, float w ) : weight(w) {
 		if ( e1 < e2 ) {
 			end1 = e1, end2 = e2;
 		} else {
